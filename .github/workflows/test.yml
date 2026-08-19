@@ -18,6 +18,10 @@ jobs:
           gleam-version: "1.18.1"
           rebar3-version: "3"
           # elixir-version: "1"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - run: gleam deps download
       - run: gleam test
+      - run: gleam test --target javascript
       - run: gleam format --check src test
