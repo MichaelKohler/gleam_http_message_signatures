@@ -173,14 +173,16 @@ pub fn sign_then_verify_b26_round_trip_test() {
     signer.sign(test_request(), private_key, "sig-b26", b26_signature_params())
 
   assert verifier.verify(
-      test_request(),
-      public_key,
-      b26_signature_params(),
-      signed.signature,
-      "sig-b26",
-      [Derived(Method), Derived(Authority)],
-      created,
-      None,
+      message: test_request(),
+      public_key: public_key,
+      signature_params: b26_signature_params(),
+      signature_header: signed.signature,
+      label: "sig-b26",
+      policy: verifier.VerifyPolicy(
+        required_components: [Derived(Method), Derived(Authority)],
+        now: created,
+        max_age_seconds: None,
+      ),
     )
     == Ok(Nil)
 }
@@ -204,14 +206,16 @@ pub fn sign_then_verify_round_trip_test() {
     signer.sign(request, private_key, "sig1", signature_params)
 
   assert verifier.verify(
-      request,
-      public_key,
-      signature_params,
-      signed.signature,
-      "sig1",
-      [Derived(Method)],
-      1000,
-      None,
+      message: request,
+      public_key: public_key,
+      signature_params: signature_params,
+      signature_header: signed.signature,
+      label: "sig1",
+      policy: verifier.VerifyPolicy(
+        required_components: [Derived(Method)],
+        now: 1000,
+        max_age_seconds: None,
+      ),
     )
     == Ok(Nil)
 }
@@ -227,14 +231,16 @@ pub fn tampered_signature_bytes_fail_verification_test() {
     flip_first_signature_byte(signed.signature, "sig-b26")
 
   assert verifier.verify(
-      test_request(),
-      public_key,
-      b26_signature_params(),
-      tampered_signature,
-      "sig-b26",
-      [],
-      created,
-      None,
+      message: test_request(),
+      public_key: public_key,
+      signature_params: b26_signature_params(),
+      signature_header: tampered_signature,
+      label: "sig-b26",
+      policy: verifier.VerifyPolicy(
+        required_components: [],
+        now: created,
+        max_age_seconds: None,
+      ),
     )
     == Error(verifier.InvalidSignature)
 }
@@ -274,14 +280,16 @@ pub fn tampering_a_covered_header_fails_verification_test() {
     ])
 
   assert verifier.verify(
-      mutated_request,
-      public_key,
-      b26_signature_params(),
-      signed.signature,
-      "sig-b26",
-      [],
-      created,
-      None,
+      message: mutated_request,
+      public_key: public_key,
+      signature_params: b26_signature_params(),
+      signature_header: signed.signature,
+      label: "sig-b26",
+      policy: verifier.VerifyPolicy(
+        required_components: [],
+        now: created,
+        max_age_seconds: None,
+      ),
     )
     == Error(verifier.InvalidSignature)
 }
@@ -302,14 +310,16 @@ pub fn tampering_an_uncovered_header_still_verifies_test() {
     ])
 
   assert verifier.verify(
-      request_with_extra_header,
-      public_key,
-      b26_signature_params(),
-      signed.signature,
-      "sig-b26",
-      [],
-      created,
-      None,
+      message: request_with_extra_header,
+      public_key: public_key,
+      signature_params: b26_signature_params(),
+      signature_header: signed.signature,
+      label: "sig-b26",
+      policy: verifier.VerifyPolicy(
+        required_components: [],
+        now: created,
+        max_age_seconds: None,
+      ),
     )
     == Ok(Nil)
 }
@@ -323,14 +333,16 @@ pub fn missing_required_component_test() {
 
   let result =
     verifier.verify(
-      test_request(),
-      public_key,
-      b26_signature_params(),
-      signed.signature,
-      "sig-b26",
-      [Field("content-digest")],
-      created,
-      None,
+      message: test_request(),
+      public_key: public_key,
+      signature_params: b26_signature_params(),
+      signature_header: signed.signature,
+      label: "sig-b26",
+      policy: verifier.VerifyPolicy(
+        required_components: [Field("content-digest")],
+        now: created,
+        max_age_seconds: None,
+      ),
     )
 
   assert result
@@ -348,14 +360,16 @@ pub fn signature_expired_test() {
     signer.sign(test_request(), private_key, "sig-b26", signature_params)
 
   assert verifier.verify(
-      test_request(),
-      public_key,
-      signature_params,
-      signed.signature,
-      "sig-b26",
-      [],
-      created + 20,
-      None,
+      message: test_request(),
+      public_key: public_key,
+      signature_params: signature_params,
+      signature_header: signed.signature,
+      label: "sig-b26",
+      policy: verifier.VerifyPolicy(
+        required_components: [],
+        now: created + 20,
+        max_age_seconds: None,
+      ),
     )
     == Error(verifier.SignatureExpired)
 }
@@ -368,14 +382,16 @@ pub fn signature_too_old_test() {
     signer.sign(test_request(), private_key, "sig-b26", b26_signature_params())
 
   assert verifier.verify(
-      test_request(),
-      public_key,
-      b26_signature_params(),
-      signed.signature,
-      "sig-b26",
-      [],
-      created + 100,
-      Some(60),
+      message: test_request(),
+      public_key: public_key,
+      signature_params: b26_signature_params(),
+      signature_header: signed.signature,
+      label: "sig-b26",
+      policy: verifier.VerifyPolicy(
+        required_components: [],
+        now: created + 100,
+        max_age_seconds: Some(60),
+      ),
     )
     == Error(verifier.SignatureTooOld)
 }
@@ -401,14 +417,16 @@ pub fn verifier_rejects_unsupported_algorithm_test() {
     SignatureParams(..b26_signature_params(), algorithm: "rsa-pss-sha512")
 
   assert verifier.verify(
-      test_request(),
-      public_key,
-      signature_params,
-      signed.signature,
-      "sig-b26",
-      [],
-      created,
-      None,
+      message: test_request(),
+      public_key: public_key,
+      signature_params: signature_params,
+      signature_header: signed.signature,
+      label: "sig-b26",
+      policy: verifier.VerifyPolicy(
+        required_components: [],
+        now: created,
+        max_age_seconds: None,
+      ),
     )
     == Error(verifier.UnsupportedAlgorithm("rsa-pss-sha512"))
 }
@@ -416,8 +434,8 @@ pub fn verifier_rejects_unsupported_algorithm_test() {
 pub fn verifier_parse_extracts_params_from_signature_input_test() {
   let assert Ok(parsed) =
     verifier.parse(
-      "sig-b26=(\"date\" \"@method\" \"@path\" \"@authority\" \"content-type\" \"content-length\");keyid=\"test-key-ed25519\";alg=\"ed25519\";created=1618884473",
-      "sig-b26",
+      signature_input_header: "sig-b26=(\"date\" \"@method\" \"@path\" \"@authority\" \"content-type\" \"content-length\");keyid=\"test-key-ed25519\";alg=\"ed25519\";created=1618884473",
+      label: "sig-b26",
     )
 
   assert parsed == b26_signature_params()
@@ -426,8 +444,8 @@ pub fn verifier_parse_extracts_params_from_signature_input_test() {
 pub fn verifier_parse_rejects_missing_label_test() {
   let result =
     verifier.parse(
-      "sig1=(\"@method\");keyid=\"test-key\";alg=\"ed25519\";created=1618884473",
-      "sig-b26",
+      signature_input_header: "sig1=(\"@method\");keyid=\"test-key\";alg=\"ed25519\";created=1618884473",
+      label: "sig-b26",
     )
   assert result == Error(verifier.SignatureLabelNotFound)
 }
@@ -440,8 +458,8 @@ pub fn verifier_parse_rejects_rfc_style_input_missing_alg_test() {
   // than accepted on a best-effort basis.
   let result =
     verifier.parse(
-      "sig-b26=(\"date\" \"@method\" \"@path\" \"@authority\" \"content-type\" \"content-length\");created=1618884473;keyid=\"test-key-ed25519\"",
-      "sig-b26",
+      signature_input_header: "sig-b26=(\"date\" \"@method\" \"@path\" \"@authority\" \"content-type\" \"content-length\");created=1618884473;keyid=\"test-key-ed25519\"",
+      label: "sig-b26",
     )
   assert result == Error(verifier.MalformedSignatureParams)
 }

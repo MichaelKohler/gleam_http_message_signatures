@@ -30,12 +30,36 @@ pub type VerifyError {
   InvalidSignature
 }
 
+/// The caller-supplied checks `verify` applies beyond the signature bytes
+/// themselves.
+///
+/// `required_components` is not optional: RFC 9421 §7.2 flags that a
+/// signature covering an insufficient or attacker-chosen set of components
+/// is a real attack surface, so callers must state what has to be covered
+/// (e.g. `@method`, `@authority`, `date`) rather than trusting whatever the
+/// signer claims to have covered.
+///
+/// `now` is caller-supplied rather than read from the system clock — this
+/// library has no built-in clock or replay protection by design, which
+/// keeps verification deterministic and identical across the Erlang and
+/// JavaScript targets, and trivially testable with fixed timestamps.
+///
+/// `max_age_seconds`, when given, additionally bounds `now - created`,
+/// independently of (and in addition to) the signature's own `expires`.
+pub type VerifyPolicy {
+  VerifyPolicy(
+    required_components: List(component.ComponentIdentifier),
+    now: Int,
+    max_age_seconds: Option(Int),
+  )
+}
+
 /// Parses the `Signature-Input` header and extracts the parameters for
 /// `label`, so the caller can inspect `keyid` before picking a key to verify
 /// with.
 pub fn parse(
-  signature_input_header: String,
-  label: String,
+  signature_input_header signature_input_header: String,
+  label label: String,
 ) -> Result(SignatureParams, VerifyError) {
   use entries <- result.try(
     parser.parse_dictionary(signature_input_header)
@@ -52,31 +76,36 @@ pub fn parse(
 }
 
 /// Verifies `message` against `signature_header` under `label`, using
-/// `public_key` and the previously-parsed `signature_params`.
+/// `public_key`, the previously-parsed `signature_params`, and `policy`.
 ///
-/// Checks run cheapest-first: `required_components` coverage (RFC 9421 §7.2
-/// — an insufficient or attacker-chosen covered set is a real attack
-/// surface, so callers must state what has to be covered), algorithm
-/// (`UnsupportedAlgorithm` for anything other than `"ed25519"` — the same
-/// algorithm-confusion guard as `signer.sign`), expiry, max age, and finally
-/// the signature bytes themselves.
+/// Checks run cheapest-first: `policy.required_components` coverage,
+/// algorithm (`UnsupportedAlgorithm` for anything other than `"ed25519"` —
+/// the same algorithm-confusion guard as `signer.sign`), expiry, max age,
+/// and finally the signature bytes themselves.
+///
+/// For a message signed multiple times under different labels, call
+/// `verify` once per label — `signature_header` may hold several labeled
+/// signatures at once (RFC 9421's dictionary model), and each is checked
+/// independently against its own `signature_params` and `policy`.
 pub fn verify(
-  message: Message,
-  public_key: keys.PublicKey,
-  signature_params: SignatureParams,
-  signature_header: String,
-  label: String,
-  required_components: List(component.ComponentIdentifier),
-  now: Int,
-  max_age_seconds: Option(Int),
+  message message: Message,
+  public_key public_key: keys.PublicKey,
+  signature_params signature_params: SignatureParams,
+  signature_header signature_header: String,
+  label label: String,
+  policy policy: VerifyPolicy,
 ) -> Result(Nil, VerifyError) {
   use _ <- result.try(check_required_components(
     signature_params.components,
-    required_components,
+    policy.required_components,
   ))
   use _ <- result.try(check_algorithm(signature_params.algorithm))
-  use _ <- result.try(check_expiry(signature_params, now))
-  use _ <- result.try(check_max_age(signature_params, now, max_age_seconds))
+  use _ <- result.try(check_expiry(signature_params, policy.now))
+  use _ <- result.try(check_max_age(
+    signature_params,
+    policy.now,
+    policy.max_age_seconds,
+  ))
 
   let params_element = params.to_element(signature_params)
 

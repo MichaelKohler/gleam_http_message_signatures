@@ -44,21 +44,49 @@ pub fn main() {
 
   let assert Ok(Nil) =
     verifier.verify(
-      request,
-      public_key,
-      signature_params,
-      signed.signature,
-      "sig1",
-      [Derived(Method), Derived(Authority)],
-      1_618_884_473,
-      None,
+      message: request,
+      public_key: public_key,
+      signature_params: signature_params,
+      signature_header: signed.signature,
+      label: "sig1",
+      policy: verifier.VerifyPolicy(
+        required_components: [Derived(Method), Derived(Authority)],
+        now: 1_618_884_473,
+        max_age_seconds: None,
+      ),
     )
 }
 ```
 
 This library only computes and checks header *values* — it has no dependency
 on any HTTP framework, so it works with `mist`, `wisp`, `httpc`, or anything
-else.
+else. `verify`'s `now` is always caller-supplied rather than read from the
+system clock — this keeps verification deterministic and identical across
+the Erlang and JavaScript targets, and trivially testable with fixed
+timestamps.
+
+### Multiple signatures on one message
+
+RFC 9421 models `Signature-Input`/`Signature` as dictionaries, so several
+independently-produced signatures (e.g. one from the client, one from a
+forwarding proxy — each potentially with a different key, algorithm, or
+covered-component set) can share one header pair under different labels.
+Use `signer.sign_one` to produce each signature and `signer.combine` to pack
+them together:
+
+```gleam
+let assert Ok(client_signed) =
+  signer.sign_one(request, client_key, "client", client_params)
+let assert Ok(proxy_signed) =
+  signer.sign_one(request, proxy_key, "proxy", proxy_params)
+
+let assert Ok(signed) = signer.combine([client_signed, proxy_signed])
+```
+
+`verifier.verify` already handles this on the way in — call it once per
+label, passing the shared `signature_header`/`signature_input` value each
+time; it extracts just the entry for the given `label` out of the
+dictionary.
 
 ## Not yet supported
 
@@ -69,8 +97,6 @@ PRs are welcome for any of the following:
   construct params for other RFC 9421 §6.3-registered algorithms — `sign`
   and `verify` will just return `UnsupportedAlgorithm` for anything other
   than `"ed25519"`.
-- Multiple signatures per message — only a single `Signature-Input`/`Signature`
-  label is produced per call to `sign`.
 - Structured-field component parameters: `sf`, `key`, `bs` (RFC §2.1.1–2.1.3).
 - Trailer fields / the `tr` parameter (RFC §2.1.4).
 - Request-response binding / the `req` parameter (RFC §2.4).
