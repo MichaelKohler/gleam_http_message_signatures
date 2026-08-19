@@ -1,0 +1,13 @@
+name = "http_message_signatures"
+version = "1.0.0"
+
+description = "HTTP Message Signatures (RFC 9421) helper functions"
+licences = ["MIT"]
+repository = { type = "github", user = "MichaelKohler", repo = "gleam_http_message_signatures" }
+links = []
+
+[dependencies]
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
+
+[dev_dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"
