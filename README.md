@@ -1,22 +1,22 @@
 # http_message_signatures
 
-[![Package Version](https://img.shields.io/hexpm/v/http_message_signatures)](https://hex.pm/packages/http_message_signatures)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://http-message-signatures.hexdocs.pm/)
+[![Package Version](https://img.shields.io/hexpm/v/generic_http_message_signatures)](https://hex.pm/packages/generic_http_message_signatures)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://generic-http-message-signatures.hexdocs.pm/)
 
 A minimal, framework-agnostic implementation of [RFC 9421](https://www.rfc-editor.org/rfc/rfc9421.html) (HTTP Message Signatures), targeting both the Erlang and JavaScript backends. It does not yet cover 100% of the RFC, see below for unsupported areas.
 
 ```sh
-gleam add http_message_signatures
+gleam add generic_http_message_signatures
 ```
 
 ```gleam
 import gleam/option.{None, Some}
-import http_message_signatures/component.{Authority, Derived, Field, Method}
-import http_message_signatures/keys
-import http_message_signatures/message.{Request}
-import http_message_signatures/params.{SignatureParams}
-import http_message_signatures/signer
-import http_message_signatures/verifier
+import generic_http_message_signatures/component.{Authority, Derived, Field, Method}
+import generic_http_message_signatures/keys
+import generic_http_message_signatures/message.{Request}
+import generic_http_message_signatures/params.{SignatureParams}
+import generic_http_message_signatures/signer
+import generic_http_message_signatures/verifier
 
 pub fn main() {
   let #(private_key, public_key) = keys.generate()
