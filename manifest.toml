@@ -9,10 +9,10 @@
 packages = [
   { name = "bigi", version = "4.1.1", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "bigi", source = "hex", outer_checksum = "44FEDF1DF5C1F426A80B67C32B976D0828D66524E11BDC2DD22B78D37C883BA7" },
   { name = "gleam_stdlib", version = "1.0.5", build_tools = ["gleam"], requirements = [], otp_app = "gleam_stdlib", source = "hex", outer_checksum = "CEE5B6C076A85B45F60C585F4316C63EC8B7127C119D5738C3958A9C4D50404E" },
-  { name = "gleam_time", version = "1.10.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_time", source = "hex", outer_checksum = "56539216E4C4B1748714652AB38F0BD16B9101F61DB62769FDC7CD42A8E5E833" },
+  { name = "gleam_time", version = "1.11.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleam_time", source = "hex", outer_checksum = "3AB789C3ED4EB9DDA7283F46C3CF83A5487C9CFB790DC3FF8F8ACB5BF7B7A6C1" },
   { name = "gleeunit", version = "1.11.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "gleeunit", source = "hex", outer_checksum = "EC31ABA74256AEA531EDF8169931D775BBB384FED0A8A1BDC4DD9354E3E21826" },
   { name = "kryptos", version = "1.5.0", build_tools = ["gleam"], requirements = ["bigi", "gleam_stdlib", "gleam_time"], otp_app = "kryptos", source = "hex", outer_checksum = "0707A1492E8585CEC8218315C69A182B43CD25E22C216CB530330C94F5D62944" },
-  { name = "structured_fields", version = "1.0.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "structured_fields", source = "hex", outer_checksum = "BAC86C63C17898AC6C8212E0C65BD8D26C4A3EE41100777146330BF71FD3E94B" },
+  { name = "structured_fields", version = "1.0.1", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "structured_fields", source = "hex", outer_checksum = "833297031D14AAEF4A9802398DA10C8FE484F749ED11D5E46890034CAF878C6F" },
 ]
 
 [requirements]
