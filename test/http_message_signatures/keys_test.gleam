@@ -2,11 +2,13 @@ import gleam/bit_array
 import http_message_signatures/keys
 import kryptos/eddsa
 
-const test_key_public_pem = "-----BEGIN PUBLIC KEY-----
+const test_key_public_pem =
+  "-----BEGIN PUBLIC KEY-----
 MCowBQYDK2VwAyEAJrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs=
 -----END PUBLIC KEY-----"
 
-const test_key_private_pem = "-----BEGIN PRIVATE KEY-----
+const test_key_private_pem =
+  "-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIJ+DYvh6SEqVTm50DFtMDoQikTmiCqirVv9mWG9qfSnF
 -----END PRIVATE KEY-----"
 

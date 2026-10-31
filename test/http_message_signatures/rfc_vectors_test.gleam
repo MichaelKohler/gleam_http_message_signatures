@@ -19,11 +19,13 @@ import structured_fields/types.{
 
 // RFC 9421 Appendix B.1.4 "Example Ed25519 Test Key" (test-key-ed25519),
 // copied verbatim from https://www.rfc-editor.org/rfc/rfc9421.html.
-const test_key_public_pem = "-----BEGIN PUBLIC KEY-----
+const test_key_public_pem =
+  "-----BEGIN PUBLIC KEY-----
 MCowBQYDK2VwAyEAJrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs=
 -----END PUBLIC KEY-----"
 
-const test_key_private_pem = "-----BEGIN PRIVATE KEY-----
+const test_key_private_pem =
+  "-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIJ+DYvh6SEqVTm50DFtMDoQikTmiCqirVv9mWG9qfSnF
 -----END PRIVATE KEY-----"
 
